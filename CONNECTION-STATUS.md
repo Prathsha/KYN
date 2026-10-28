@@ -2,6 +2,8 @@
 
 ## Connected and deployed
 
+- GitHub source: https://github.com/Prathsha/KYN (public repository created by the owner). All 70 source files are committed; private environment files are excluded.
+- GitHub repository connected to the existing Vercel project for automatic deployments.
 - Live production website: https://kyn-omega.vercel.app
 - Alternate production alias: https://kyn-prathshah.vercel.app
 - Vercel project: `kyn` (`prj_wo6yxrtIFlCbbeGUv77SWleHQo8F`)
@@ -28,7 +30,7 @@
 
 1. **Email delivery validation:** Site URL is now `https://kyn-omega.vercel.app`; all four production/local redirect URLs are saved and verified in the dashboard. Verify receipt of signup/reset emails using your own account. Configure custom SMTP before inviting general pilot users; default provider mail is restricted.
 2. **Pilot accounts:** the confirmed owner account has been assigned the operator role. Refresh My journeys to access pilot pause/resume controls. Create a separate companion test account and approve it using the README procedure. Companion approval currently uses the database administration step; it is not a web operator screen. The pilot remains paused. No companions or successful bookings have been fabricated.
-3. **Stripe:** account connection and payment implementation remain pending. The site collects no payments.
+3. **Stripe:** New business is connected to this session in live and test mode. Test mode is selected for integration work. The deployed app still needs its own restricted test API key, checkout endpoints and verified payment webhooks. The site currently collects no payments.
 4. **Native distribution:** the app uses the live API, but needs Expo project ownership, bundle/package identifiers, signing credentials, device testing and Apple/Google developer accounts before signed distribution. Bundles are not installable store binaries.
 5. **Other integrations:** live navigation, push notifications and screening/operations integrations are not configured.
 

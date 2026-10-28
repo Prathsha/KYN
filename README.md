@@ -1,5 +1,7 @@
 # KYN
 
+**Source:** https://github.com/Prathsha/KYN
+
 **Live:** https://kyn-omega.vercel.app — see [CONNECTION-STATUS.md](CONNECTION-STATUS.md) for configured services and remaining setup.
 
 A Vercel-ready Next.js website, installable PWA, and native Expo iOS/Android app for a NYC companionship pilot. The visual system uses the supplied aloe, sea salt, sage and olive palette with dark green controls.
