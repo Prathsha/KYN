@@ -1,0 +1,7 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {estimate,places,canAct,type Journey} from '../shared/domain.ts';
+test('all public route quotes are symmetric, integer cents and include fees',()=>{for(const a of places)for(const b of places){if(a.id===b.id){assert.throws(()=>estimate(a.id,b.id,'walk'));continue}for(const service of ['walk','subway'] as const){const q=estimate(a.id,b.id,service);assert.deepEqual(q,estimate(b.id,a.id,service));assert.equal(q.total,q.base+q.time+q.fee);assert.ok(Number.isInteger(q.total));assert.ok(q.minutes>=7)}}});
+test('unknown points cannot produce a quote',()=>assert.throws(()=>estimate('home','union','walk')));
+test('only assigned companion can verify a meeting; strangers cannot end or complete',()=>{const t={rider_id:'r',companion_id:'c',status:'arrived'} as Journey;assert.equal(canAct('start',t,'c','companion'),true);for(const uid of ['r','stranger'])assert.equal(canAct('start',t,uid,'companion'),false);for(const action of ['complete','cancel','report'] as const)assert.equal(canAct(action,t,'stranger','ops'),false)});
+test('riders cannot accept their own requests; completed trips cannot be cancelled',()=>{const t={rider_id:'r',companion_id:null,status:'requested'} as Journey;assert.equal(canAct('accept',t,'r','companion'),false);assert.equal(canAct('accept',t,'c','rider'),false);assert.equal(canAct('accept',t,'c','companion'),true);t.status='completed';assert.equal(canAct('cancel',t,'r','rider'),false);assert.equal(canAct('rate',t,'r','rider'),true)});

@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "KYN",
+    "slug": "kyn",
+    "version": "1.0.0",
+    "scheme": "kyn",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "icon": "../public/icons/icon-512.png",
+    "splash": {
+      "image": "../public/icons/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#D6DBD3"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "../public/icons/maskable-512.png",
+        "backgroundColor": "#C9D5C9"
+      }
+    },
+    "plugins": [
+      "expo-secure-store"
+    ],
+    "platforms": [
+      "ios",
+      "android"
+    ]
+  }
+}

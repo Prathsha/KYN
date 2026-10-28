@@ -1,0 +1,2 @@
+import {NextRequest} from 'next/server';import {z} from 'zod';import {client,fail,body,json,dbError} from '@/lib/server';
+export async function POST(req:NextRequest){try{const i=z.object({id:z.uuid(),message:z.string().trim().min(1).max(2000),request_id:z.uuid()}).parse(await body(req));const {db}=await client(req);const {data,error}=await db.rpc('send_message',{p_booking:i.id,p_body:i.message,p_request_id:i.request_id});if(error)dbError(error);return json({message:data})}catch(e){return fail(e)}}
