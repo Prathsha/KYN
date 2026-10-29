@@ -5,3 +5,30 @@ test('all public route quotes are symmetric, integer cents and include fees',()=
 test('unknown points cannot produce a quote',()=>assert.throws(()=>estimate('home','union','walk')));
 test('only assigned companion can verify a meeting; strangers cannot end or complete',()=>{const t={rider_id:'r',companion_id:'c',status:'arrived'} as Journey;assert.equal(canAct('start',t,'c','companion'),true);for(const uid of ['r','stranger'])assert.equal(canAct('start',t,uid,'companion'),false);for(const action of ['complete','cancel','report'] as const)assert.equal(canAct(action,t,'stranger','ops'),false)});
 test('riders cannot accept their own requests; completed trips cannot be cancelled',()=>{const t={rider_id:'r',companion_id:null,status:'requested'} as Journey;assert.equal(canAct('accept',t,'r','companion'),false);assert.equal(canAct('accept',t,'c','rider'),false);assert.equal(canAct('accept',t,'c','companion'),true);t.status='completed';assert.equal(canAct('cancel',t,'r','rider'),false);assert.equal(canAct('rate',t,'r','rider'),true)});
+
+test('meeting points have distinct geographic coordinates within the NYC pilot',()=>{
+ const coordinates=new Set<string>();
+ for(const p of places){
+  assert.ok(p.lat>40.72&&p.lat<40.74,p.name);
+  assert.ok(p.lng> -74.01&&p.lng< -73.97,p.name);
+  coordinates.add(`${p.lat},${p.lng}`);
+ }
+ assert.equal(coordinates.size,places.length);
+});
+
+test('map directions preserve endpoints, swap correctly and use the selected transport mode',async()=>{
+ const {mapDirections}=await import('../shared/domain.ts');
+ for(const a of places)for(const b of places){
+  if(a.id===b.id){assert.equal(mapDirections(a.id,b.id,'walk'),null);continue}
+  for(const service of ['walk','subway'] as const){
+   const url=new URL(mapDirections(a.id,b.id,service)!);
+   assert.equal(url.origin,'https://www.google.com');
+   assert.equal(url.searchParams.get('api'),'1');
+   assert.equal(url.searchParams.get('origin'),`${a.lat},${a.lng}`);
+   assert.equal(url.searchParams.get('destination'),`${b.lat},${b.lng}`);
+   assert.equal(url.searchParams.get('travelmode'),service==='walk'?'walking':'transit');
+  }
+ }
+ assert.equal(mapDirections('unknown','union','walk'),null);
+ assert.equal(mapDirections('union','','subway'),null);
+});
