@@ -15,6 +15,7 @@ const run=async(fn:()=>Promise<void>)=>{setBusy(true);setError('');try{await fn(
 const go=(target:string)=>{setPage(target);setSelected(null);setDetail(null);setError('');if(target==='book')setStage('plan')};
 useEffect(()=>{const id=new URLSearchParams(window.location.search).get('journey');if(id&&/^[a-f0-9-]{36}$/i.test(id)){setSelected(id);setPage('book');setStage('trip');window.history.replaceState({},'',window.location.pathname)}},[]);
 useEffect(()=>{const q=new URLSearchParams(window.location.search);if(q.has('companion')){setModal('auth');setAuthMode('signup')}if(q.has('workspace'))setPage('activity')},[]);
+useEffect(()=>{if(session?.user.user_metadata?.companion_onboarding===true)window.location.replace('/companions')},[session?.user.id]);
 const quote=destination&&destination!==origin?estimate(origin,destination,service):null;
 const openTrip=(trip:Journey)=>{setPage('book');setSelected(trip.id);setStage('trip')};
 const act=(action:Action,extra:Record<string,unknown>={})=>run(async()=>{if(!detail)throw Error('Open a journey first.');await api('actions',{action,id:detail.journey.id,...extra});await Promise.all([refresh(),refreshDetail(detail.journey.id)]);if(action==='report')setModal('');if(action==='cancel')setModal('');notify(action==='complete'?'Your arrival confirmation is saved.':action==='rate'?'Thank you for your feedback.':'Journey updated.')});
