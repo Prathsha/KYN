@@ -11,6 +11,7 @@ export async function POST(req:NextRequest){
  if(!['checkout.session.completed','checkout.session.async_payment_succeeded','checkout.session.async_payment_failed','checkout.session.expired'].includes(event.type))return NextResponse.json({received:true});
  try{
  const session=event.data.object as import('stripe').Stripe.Checkout.Session;
+ if(!session.metadata?.booking_id||!session.metadata?.attempt_id)return NextResponse.json({received:true});
  const status=paymentEventStatus(event.type,session);
  if(!status)return NextResponse.json({received:true});
  const db=paymentDatabase();

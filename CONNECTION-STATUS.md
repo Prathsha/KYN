@@ -43,3 +43,5 @@ Reference: https://supabase.com/docs/guides/database/database-linter?lint=0029_a
 ## October 29 payment integration update
 
 Added Stripe SDK 23, test-only checkout endpoint, signed webhook handler, completed-journey test checkout UI and an isolated payment table. Migration `test_journey_payments` applied and live permission checks passed. Registered test webhook `we_1UW12YEvWnR2lOfAFXFG65KO`; signing secret saved in Vercel production. Existing restricted Stripe key remains stored in Vercel. Pending SUPABASE_SECRET_KEY and explicit feature enablement, followed by hosted checkout verification. Pilot remains paused.
+
+Security advisor: the payment migration added no new advisor findings. The ten existing authenticated SECURITY DEFINER warnings remain, and leaked-password protection is disabled (https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection).
