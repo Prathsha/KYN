@@ -39,3 +39,7 @@
 The advisor reports ten authenticated SECURITY DEFINER RPC warnings. These are deliberately restricted mutation and RLS-lookup functions: anonymous execution is revoked, mutation functions verify auth.uid(), authorization and journey state, and client table writes are revoked. This is an intentional security boundary, not an assertion that no warnings exist. Keep auditing these functions as features change. Local PostgreSQL tests cover role escalation, participant isolation, PINs and transitions; live transaction checks also pass. Email delivery and signed-in HTTP/device flows still need account-based verification.
 
 Reference: https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable
+
+## October 29 payment integration update
+
+Added Stripe SDK 23, test-only checkout endpoint, signed webhook handler, completed-journey test checkout UI and an isolated payment table. Migration `test_journey_payments` applied and live permission checks passed. Registered test webhook `we_1UW12YEvWnR2lOfAFXFG65KO`; signing secret saved in Vercel production. Existing restricted Stripe key remains stored in Vercel. Pending SUPABASE_SECRET_KEY and explicit feature enablement, followed by hosted checkout verification. Pilot remains paused.

@@ -115,3 +115,13 @@ PGlite verifies database logic locally; it does not replace testing Supabase Aut
 - `tests/`: real PostgreSQL migration and shared-domain checks
 
 Fonts are bundled locally with their open-font licenses in `public/fonts`. No external font request is required.
+
+## Stripe test checkout — October 29, 2026
+
+Web riders can try Stripe-hosted checkout from a completed journey once server configuration is enabled. This is test-only and does not change dispatch, companion payouts, or the pilot pause state. Database fares are authoritative; success redirects do not mark payments paid. Signed webhooks handle paid, delayed success/failure and expiry, with paid status protected against repeated or out-of-order failure events.
+
+Apply `supabase/migrations/002_test_payments.sql` after the initial migration. Set production server secrets `STRIPE_SECRET_KEY` (restricted test key), `STRIPE_WEBHOOK_SECRET`, and `SUPABASE_SECRET_KEY`. Set `KYN_SITE_URL` to the canonical HTTPS origin and `KYN_TEST_PAYMENTS_ENABLED=true` only after all secrets are configured. Never prefix server secrets with NEXT_PUBLIC_.
+
+Register `/api/webhooks/stripe` for checkout.session.completed, checkout.session.async_payment_succeeded, checkout.session.async_payment_failed and checkout.session.expired using API 2026-09-30.endive. Stripe Checkout Sessions needs read/write permissions; Products and Prices need write access for inline prices. Use test card 4242 4242 4242 4242, a future expiry and any CVC. Finish a real test journey with separate rider/companion accounts before trying checkout. Verify the database status becomes paid from the webhook and a repeat checkout is rejected. Native checkout is not yet exposed.
+
+Seven local tests and the production build pass, including signature tampering, live-key rejection, unpaid completion, database isolation and payment reservation retries. End-to-end hosted checkout remains to be verified after the server database secret is saved.
