@@ -33,4 +33,19 @@ await as(companion);await db.query(`select booking_action($1,'complete')`,[booki
 await as(rider);await db.query(`select booking_action($1,'rate','','',5)`,[booking.id]);await assert.rejects(()=>db.query(`select booking_action($1,'cancel')`,[booking.id]),/Action not allowed/);
 // Compare PostgreSQL numeric rounding with shared JS prices for every distinct route.
 for(const a of places)for(const b of places)if(a.id!==b.id)for(const service of ['walk','subway'] as const){const id=crypto.randomUUID();const q=(await db.query<{b:any}>(`select to_jsonb(create_booking($1,$2,$3,now()+interval '1 hour','',$4)) b`,[a.id,b.id,service,id])).rows[0].b;assert.equal(q.amount_cents,estimate(a.id,b.id,service).total,`${a.id}/${b.id}/${service}`);await db.query(`select booking_action($1,'cancel')`,[q.id]);}
+
+await db.exec('reset role');
+await db.exec(await readFile(new URL('../supabase/migrations/003_companion_applications.sql',import.meta.url),'utf8'));
+await as(rider);
+await db.query("select submit_companion_application('Rider','I know the neighborhood and subway well','Weekday evenings','All pilot areas',true)");
+await assert.rejects(()=>db.query("select review_companion_application($1,'approved','Approved',true)",[rider]),/Not authorized/);
+await as(companion);assert.equal((await db.query('select * from companion_applications')).rows.length,0);
+await db.exec('reset role');await db.query("update profiles set role='ops' where id=$1",[stranger]);await as(stranger);
+await assert.rejects(()=>db.query("select review_companion_application($1,'approved','Screening complete',true)",[rider]),/Complete screening/);
+await db.query("select review_companion_application($1,'changes_requested','Please provide availability details',false)",[rider]);
+await as(rider);await db.query("select submit_companion_application('Rider','I know the neighborhood and subway well','Monday evenings 6 to 9','All pilot areas',true)");
+await as(stranger);await db.query("select review_companion_application($1,'under_review','Review started',false)",[rider]);
+await assert.rejects(()=>db.query("select review_companion_application($1,'approved','Screening complete',false)",[rider]),/Complete screening/);
+await db.query("select review_companion_application($1,'approved','Screening and onboarding completed',true)",[rider]);
+const approved=(await db.query<any>('select role,approved,available from profiles where id=$1',[rider])).rows[0];assert.deepEqual(approved,{role:'companion',approved:true,available:false});
 }finally{await db.close()}});
