@@ -99,36 +99,36 @@ export function NeighborhoodMap({origin,destination,service='walk'}:{origin:stri
    .kyn-live-map .kyn-map-route{top:auto;left:24px;bottom:28px;max-width:calc(100% - 92px);display:flex;align-items:center;gap:20px;padding:14px 16px;border:1px solid #D9E1D4;box-shadow:0 9px 28px #243b3024;background:#FCFDF9F2;backdrop-filter:blur(12px)}
    .kyn-live-map .kyn-map-route strong{font-size:20px;letter-spacing:-.6px;margin:0 0 3px}
    .kyn-live-map .kyn-map-route span{display:block;font-size:9px;white-space:nowrap}
-   .kyn-map-route a{display:flex;align-items:center;gap:7px;margin:0;padding:9px 11px;border-radius:7px;background:#243B30;color:white;font-size:10px;font-weight:700;text-decoration:none;white-space:nowrap;transition:background-color .18s ease-out,transform .18s ease-out}
+   .kyn-map-route a{display:flex;align-items:center;gap:7px;min-height:40px;margin:0;padding:9px 11px;border-radius:7px;background:#243B30;color:white;font-size:10px;font-weight:700;text-decoration:none;white-space:nowrap;transition:background-color .18s ease-out,transform .18s ease-out}
    .kyn-map-route a:hover{background:#3A5743}
    .kyn-map-route a:active{transform:scale(.97)}
-   .kyn-map-pin{border:0!important;background:transparent!important;display:grid!important;place-items:center;filter:none!important}
+   .kyn-map-pin{border:0;background:transparent;display:grid;place-items:center;filter:none}
    .kyn-map-pin span{width:30px;height:30px;display:grid;place-items:center;background:#243B30;border:4px solid #FCFDF9;border-radius:50%;box-shadow:0 3px 12px #243b3040;color:white;font-size:11px;font-weight:800;line-height:1;animation:kyn-pin-in .42s cubic-bezier(.2,.8,.2,1) both}
    .kyn-map-pin.is-destination span{background:#FCFDF9;color:#243B30;border-color:#243B30}
    .kyn-map-pin.is-destination span{animation-delay:.1s}
-   .kyn-route-line{stroke-linecap:round;stroke-dasharray:1200;stroke-dashoffset:1200;animation:kyn-route-in .75s cubic-bezier(.2,.8,.2,1) .08s forwards}
+   .kyn-route-line{stroke-linecap:round;opacity:0;animation:kyn-route-in .55s ease-out .08s forwards}
    .kyn-map-status{position:absolute;top:80px;left:20px;right:20px;width:fit-content;background:#FCFDF9;padding:12px;border-radius:8px;font-size:11px;box-shadow:0 2px 10px #344e2715}
    .kyn-map-status button{text-decoration:underline;font-weight:bold}
    .kyn-live-map .map-controls{bottom:28px;right:22px;border:0;border-radius:10px;box-shadow:0 8px 24px #243b3022}
    .kyn-live-map .map-controls button{background:#FCFDF9F2;width:40px;height:39px;transition:background-color .16s ease-out,color .16s ease-out}
    .kyn-live-map .map-controls button:hover{background:#EFF3EA;color:#35513E}
    .kyn-live-map .map-intro{border:0;box-shadow:0 12px 34px #243b3020;background:#FCFDF9ED;backdrop-filter:blur(12px)}
-   .kyn-live-map .leaflet-control-attribution{font-size:8px;background:#FCFDF9C7;color:#6F7C71;backdrop-filter:blur(6px)}
+   .kyn-live-map .leaflet-control-attribution{font-size:9px;background:#FCFDF9C7;color:#6F7C71;backdrop-filter:blur(6px)}
    @keyframes kyn-pin-in{from{opacity:0;transform:translateY(7px) scale(.72)}to{opacity:1;transform:translateY(0) scale(1)}}
-   @keyframes kyn-route-in{to{stroke-dashoffset:0}}
-   @media(prefers-reduced-motion:reduce){.kyn-map-pin span,.kyn-route-line{animation:none}.kyn-map-route a,.kyn-live-map .map-controls button{transition:none}}
+   @keyframes kyn-route-in{to{opacity:1}}
+   @media(prefers-reduced-motion:reduce){.kyn-map-pin span{animation:none}.kyn-route-line{animation:none;opacity:1}.kyn-map-route a,.kyn-live-map .map-controls button{transition:none}}
    @media(max-width:760px){
     .kyn-live-map .map-header{left:12px;right:12px;top:12px}
     .kyn-live-map .map-header>span{padding:8px 9px}
     .kyn-live-map .kyn-map-route{left:12px;bottom:18px;gap:10px;padding:11px 12px;max-width:calc(100% - 64px)}
     .kyn-live-map .kyn-map-route strong{font-size:17px}
     .kyn-live-map .kyn-map-route span{font-size:8px}
-    .kyn-map-route a{padding:8px;font-size:0;gap:0}
+    .kyn-map-route a{width:44px;height:44px;padding:0;font-size:0;gap:0}
     .kyn-map-route a svg{width:14px;height:14px}
     .kyn-live-map .map-controls{right:12px;bottom:18px}
-    .kyn-live-map .map-controls button{width:34px;height:34px}
+    .kyn-live-map .map-controls button{width:44px;height:44px}
     .kyn-live-map .kyn-map-status{top:58px}
-    .kyn-live-map .leaflet-control-attribution{font-size:8px;margin-bottom:12px}
+    .kyn-live-map .leaflet-control-attribution{font-size:9px;margin-bottom:12px}
    }
   `}</style>
  </section>;
