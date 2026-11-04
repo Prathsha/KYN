@@ -1,14 +1,15 @@
 'use client';
 import {serviceAreas,defaultServiceArea} from '@/shared/service-areas';
 
+import {IdentityUpload} from './identity-upload';
 import {useEffect,useState,type FormEvent} from 'react';
 import {supabase,api} from '@/lib/supabase';
 import {companionFlowMode,nextCompanionPhase,type CompanionPhase} from '@/shared/companion-walkthrough';
 import type {Profile} from '@/shared/domain';
 
 function CompanionProgress({current,complete=false}:{current:number;complete?:boolean}){
- return <ol className="step-indicators" aria-label={complete?'Companion application walkthrough complete':`Companion application, step ${current} of 6`}>
-  {[1,2,3,4,5,6].map(n=>{
+ return <ol className="step-indicators" aria-label={complete?'Companion application walkthrough complete':`Companion application, step ${current} of 7`}>
+  {[1,2,3,4,5,6,7].map(n=>{
    const done=complete||n<current;
    return <li key={n} className={done?'complete':n===current?'current':''} aria-current={!complete&&n===current?'step':undefined}><span>{n}</span></li>;
   })}
@@ -55,7 +56,7 @@ export function CompanionAuth(){
     ?await supabase.auth.signUp({email,password,options:{data:{full_name:name,companion_onboarding:true},emailRedirectTo:window.location.origin}})
     :await supabase.auth.signInWithPassword({email,password});
    if(result.error)throw result.error;
-   if(!result.data.session){setSent(true);setCooldown(60)}
+   if(!result.data.session){setSent(true);setCooldown(60);setMode('signin')}
   }catch(caught){
    setError(caught instanceof Error?caught.message:'Please try again.');
   }finally{
@@ -70,7 +71,7 @@ export function CompanionAuth(){
   <CompanionProgress current={1}/>
   <h2>{sent?'Check your email':mode==='signup'?'Let’s get you started.':'Welcome back.'}</h2>
   {flowMode==='demo'&&<div className="notice-soft" role="note"><span><b>Demo walkthrough.</b> Your entries stay on this page. No account, identity check, or application will be created.</span></div>}
-  {sent&&<p>We requested a confirmation link for <b>{email}</b>. Open it to continue here, or confirm on another device and then sign in below. Check Spam if it hasn’t arrived.</p>}
+  {sent&&<p>If this is a new account, check for a confirmation link at <b>{email}</b>. Open it to continue here, or confirm on another device and then sign in below. If you already have a verified KYN account, no new confirmation is needed: choose Sign in below. Check Spam for new-account emails.</p>}
   <form onSubmit={submit}>
    {mode==='signup'&&<label className="field">Full name<input required autoComplete="name" maxLength={80} value={name} onChange={event=>setName(event.target.value)}/></label>}
    <label className="field">Email<input required type="email" autoComplete="email" value={email} onChange={event=>setEmail(event.target.value)}/></label>
@@ -110,11 +111,12 @@ export function CompanionWizard({profile,initial,onComplete,demo=false}:Companio
   availability:initial?.availability||'',
   experience:initial?.experience||'',
  });
+ const [idReady,setIdReady]=useState(false);
  const [adult,setAdult]=useState(profile.adult_confirmed);
  const [consent,setConsent]=useState(false);
  const [busy,setBusy]=useState(false);
  const [error,setError]=useState('');
- const names=['Your profile','Where & when','Your experience','Safety & onboarding','Review & submit'];
+ const names=['Your profile','Where & when','Your experience','Safety & onboarding','Upload your ID','Review & submit'];
 
  async function next(event:FormEvent){
   event.preventDefault();
@@ -132,7 +134,8 @@ export function CompanionWizard({profile,initial,onComplete,demo=false}:Companio
    }
    return;
   }
-  if(phase<6){
+  if(phase===6&&!demo&&!idReady){setError('Upload your ID before continuing.');return}
+  if(phase<7){
    setPhase(nextCompanionPhase(phase));
    return;
   }
@@ -154,7 +157,7 @@ export function CompanionWizard({profile,initial,onComplete,demo=false}:Companio
 
  if(phase==='complete')return <section className="surface onboarding-card" role="status">
   <span className="eyebrow">DEMO APPLICATION COMPLETE</span>
-  <CompanionProgress current={6} complete/>
+  <CompanionProgress current={7} complete/>
   <h2>You made it through every step.</h2>
   <p>This is where a submitted application would move to KYN operations for identity, screening, and onboarding review.</p>
   <div className="notice-soft"><span>No account, identity check, background check, or application was created during this walkthrough.</span></div>
@@ -163,7 +166,7 @@ export function CompanionWizard({profile,initial,onComplete,demo=false}:Companio
 
  const stepIndex=phase-2;
  return <section className="surface onboarding-card">
-  <span className="eyebrow">STEP {phase} OF 6{demo?' · DEMO':''}</span>
+  <span className="eyebrow">STEP {phase} OF 7{demo?' · DEMO':''}</span>
   <CompanionProgress current={phase}/>
   <h2>{names[stepIndex]}</h2>
   <form onSubmit={next}>
@@ -181,14 +184,14 @@ export function CompanionWizard({profile,initial,onComplete,demo=false}:Companio
     <p>The KYN team must complete identity, screening and onboarding review before approving you. These checks are coordinated separately; no automated check has been run by this form.</p>
     {demo&&<div className="notice-soft"><span>For this walkthrough, screening is represented by this step only. No documents are requested or checked.</span></div>}
     <label className="checkbox"><input type="checkbox" required checked={consent} onChange={event=>setConsent(event.target.checked)}/>I agree to these expectations and to complete screening before accepting journeys.</label>
-   </>:<>
+   </>:phase===6?<IdentityUpload demo={demo} onReady={setIdReady}/>:<>
     <dl><dt>Name</dt><dd>{draft.name}</dd><dt>Area</dt><dd>{draft.area}</dd><dt>Availability</dt><dd>{draft.availability}</dd><dt>Experience</dt><dd style={{whiteSpace:'pre-wrap'}}>{draft.experience}</dd></dl>
     <p>{demo?'Finishing completes the walkthrough without sending anything.':'Submitting sends your application to operations. Your status and any requested changes will appear here.'}</p>
-    <p className="muted">Demo mode does not process identity checks, earnings, or payouts.</p>
+    <p className="muted">An uploaded ID awaits manual review. Background checks and payouts are not automated.</p>
    </>}
    <div className="onboarding-actions">
     {phase>2&&<button type="button" className="button secondary" disabled={busy} onClick={()=>setPhase((phase-1) as CompanionPhase)}>Back</button>}
-    <button className="button" disabled={busy}>{busy?'Saving…':phase===6?(demo?'Finish walkthrough':'Submit application'):'Continue'}</button>
+    <button className="button" disabled={busy}>{busy?'Saving…':phase===7?(demo?'Finish walkthrough':'Submit application'):'Continue'}</button>
    </div>
   </form>
   {error&&<p className="error" role="alert">{error}</p>}
