@@ -51,8 +51,8 @@ export function NeighborhoodMap({origin,destination,service='walk'}:{origin:stri
   const unique=selected.filter((p,i)=>selected.findIndex(v=>v.id===p.id)===i);
   if(unique.length>1){
    const routePoints=unique.map(p=>[p.lat,p.lng] as [number,number]);
-    L.polyline(routePoints,{className:'kyn-route-casing',color:'#FCFDF9',weight:12,opacity:.96,lineCap:'round'}).addTo(markers);
-    L.polyline(routePoints,{className:'kyn-route-line',color:'#17211C',weight:7,opacity:1,lineCap:'round'}).addTo(markers);
+    L.polyline(routePoints,{className:'kyn-route-casing',color:'#FFF8ED',weight:13,opacity:.98,lineCap:'round'}).addTo(markers);
+    L.polyline(routePoints,{className:'kyn-route-line',color:'#174D2D',weight:7,opacity:1,lineCap:'round'}).addTo(markers);
   }
   for(const p of unique){
    const label=`${p.id===a?.id?'Meeting point':'Destination'}: ${p.name}`;
@@ -79,41 +79,45 @@ export function NeighborhoodMap({origin,destination,service='walk'}:{origin:stri
 
  return <section className="map kyn-live-map" aria-label="Interactive neighborhood map">
   <div ref={container} className="map-art kyn-map-canvas" aria-label="Street map of public meeting points"/>
-  <div className="map-header"><span><MapPin size={14}/> East Village · NYC</span><span className="map-area">Neighborhood pilot</span></div>
+  <div className="map-header"><span><MapPin size={14}/> New York City</span><span className="map-area">Sample journey</span></div>
   {!ready&&!failed&&<div className="kyn-map-status" role="status">Loading street map…</div>}
   {(failed||tileError)&&<div className="kyn-map-status" role="alert">Street map unavailable. Check your connection. <button onClick={()=>setAttempt(v=>v+1)}>Retry map</button></div>}
   {q?<div className="route-estimate kyn-map-route"><div><strong>{q.minutes} min</strong><span>{q.miles} mi · Planning estimate</span></div>{directions&&<a href={directions} target="_blank" rel="noopener noreferrer">{service==='subway'?'Transit directions':'Walking directions'} <ExternalLink size={12}/></a>}</div>:<div className="map-intro"><Leaf size={23}/><span className="eyebrow">A LITTLE COMPANY GOES A LONG WAY</span><h2>Your neighborhood.<br/>A little more familiar.</h2><p>A walk home. A new subway route.<br/>A person to share the way.</p></div>}
   <div className="map-controls"><button aria-label="Zoom in" disabled={!ready} onClick={()=>instance.current?.map.zoomIn()}><Plus size={16}/></button><button aria-label="Zoom out" disabled={!ready} onClick={()=>instance.current?.map.zoomOut()}><Minus size={16}/></button><button aria-label="Recenter map" disabled={!ready} onClick={()=>recenter.current()}><LocateFixed size={16}/></button></div>
   <style jsx global>{`
-   .kyn-live-map{isolation:isolate;background:#E5E9E2}
-   .kyn-live-map .kyn-map-canvas{z-index:0;transition:none;background:#E5E9E2}
-   .kyn-live-map .leaflet-tile-pane{filter:grayscale(.92) sepia(.08) saturate(.34) contrast(.72) brightness(1.24);opacity:.78}
+   .kyn-live-map{isolation:isolate;background:#DDE6D8}
+   .kyn-live-map .kyn-map-canvas{z-index:0;transition:none;background:#DDE6D8}
+   .kyn-live-map .leaflet-tile-pane{filter:grayscale(.84) sepia(.2) hue-rotate(46deg) saturate(.48) contrast(.64) brightness(1.23);opacity:.7}
    .kyn-live-map .leaflet-overlay-pane{filter:drop-shadow(0 2px 2px #243b301A)}
    .kyn-live-map .leaflet-overlay-pane svg{width:auto;height:auto}
-   .kyn-live-map:after{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(135deg,#F8F9F52E,#DCE4DA26)}
+   .kyn-live-map:after{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(135deg,#FFF8ED42,#BCD0B737);mix-blend-mode:soft-light}
    .kyn-live-map .map-header,.kyn-live-map .map-intro,.kyn-live-map .map-controls,.kyn-live-map .kyn-map-route,.kyn-live-map .kyn-map-status{z-index:2}
    .kyn-live-map .map-header,.kyn-live-map .map-intro{pointer-events:none}
    .kyn-live-map .map-header{top:22px;left:22px;right:22px}
    .kyn-live-map .map-header>span{border:1px solid #E2E7DF;background:#FCFDF9EB;box-shadow:0 6px 18px #243b3010;backdrop-filter:blur(10px);font-weight:650}
-   .kyn-live-map .map-header .map-area{background:#EFF3EAE8;color:#52654F;font-weight:600}
+   .kyn-live-map .map-header .map-area{background:#EFF3EAE8;color:#465347;font-weight:600}
    .kyn-live-map .kyn-map-route{top:auto;left:24px;bottom:28px;max-width:calc(100% - 92px);display:flex;align-items:center;gap:20px;padding:14px 16px;border:1px solid #D9E1D4;box-shadow:0 9px 28px #243b3024;background:#FCFDF9F2;backdrop-filter:blur(12px)}
    .kyn-live-map .kyn-map-route strong{font-size:20px;letter-spacing:-.6px;margin:0 0 3px}
-   .kyn-live-map .kyn-map-route span{display:block;font-size:9px;white-space:nowrap}
-   .kyn-map-route a{display:flex;align-items:center;gap:7px;min-height:40px;margin:0;padding:9px 11px;border-radius:7px;background:#243B30;color:white;font-size:10px;font-weight:700;text-decoration:none;white-space:nowrap;transition:background-color .18s ease-out,transform .18s ease-out}
+   .kyn-live-map .kyn-map-route span{display:block;font-size:10px;color:#465347;white-space:nowrap}
+   .kyn-map-route a{display:flex;align-items:center;gap:7px;min-height:40px;margin:0;padding:9px 11px;border-radius:999px;background:#243B30;color:white;font-size:10px;font-weight:700;text-decoration:none;white-space:nowrap;transition:background-color .22s ease-out,transform .22s ease-out}
    .kyn-map-route a:hover{background:#3A5743}
    .kyn-map-route a:active{transform:scale(.97)}
    .kyn-map-pin{border:0;background:transparent;display:grid;place-items:center;filter:none}
-   .kyn-map-pin span{width:30px;height:30px;display:grid;place-items:center;background:#243B30;border:4px solid #FCFDF9;border-radius:50%;box-shadow:0 3px 12px #243b3040;color:white;font-size:11px;font-weight:800;line-height:1;animation:kyn-pin-in .42s cubic-bezier(.2,.8,.2,1) both}
-   .kyn-map-pin.is-destination span{background:#FCFDF9;color:#243B30;border-color:#243B30}
+   .kyn-map-pin span{width:30px;height:30px;display:grid;place-items:center;background:#174D2D;border:4px solid #FFFDF8;border-radius:50%;box-shadow:0 0 0 2px #FFFFFF,0 4px 14px #243b3040;color:white;font-size:11px;font-weight:800;line-height:1;animation:kyn-pin-in .42s cubic-bezier(.2,.8,.2,1) both}
+   .kyn-map-pin.is-destination span{background:#FFFDF8;color:#174D2D;border-color:#174D2D;box-shadow:0 0 0 3px #FFFFFF,0 4px 14px #243b3040}
    .kyn-map-pin.is-destination span{animation-delay:.1s}
    .kyn-route-line{stroke-linecap:round;opacity:0;animation:kyn-route-in .55s ease-out .08s forwards}
    .kyn-map-status{position:absolute;top:80px;left:20px;right:20px;width:fit-content;background:#FCFDF9;padding:12px;border-radius:8px;font-size:11px;box-shadow:0 2px 10px #344e2715}
    .kyn-map-status button{text-decoration:underline;font-weight:bold}
-   .kyn-live-map .map-controls{bottom:28px;right:22px;border:0;border-radius:10px;box-shadow:0 8px 24px #243b3022}
-   .kyn-live-map .map-controls button{background:#FCFDF9F2;width:40px;height:39px;transition:background-color .16s ease-out,color .16s ease-out}
-   .kyn-live-map .map-controls button:hover{background:#EFF3EA;color:#35513E}
+   .kyn-live-map .map-controls{bottom:88px;right:22px;border:0;border-radius:999px;box-shadow:none;display:grid;gap:8px;overflow:visible}
+   .kyn-live-map .map-controls button{border:0;border-radius:999px;background:#243B30;color:#FFFDF8;width:42px;height:42px;box-shadow:0 6px 18px #243b3030;transition:background-color .22s ease-out,transform .22s ease-out}
+   .kyn-live-map .map-controls button:hover{background:#3A5743;color:#FFFDF8}
+   .kyn-live-map .map-controls button:active{transform:scale(.96)}
    .kyn-live-map .map-intro{border:0;box-shadow:0 12px 34px #243b3020;background:#FCFDF9ED;backdrop-filter:blur(12px)}
-   .kyn-live-map .leaflet-control-attribution{font-size:9px;background:#FCFDF9C7;color:#6F7C71;backdrop-filter:blur(6px)}
+   .kyn-live-map .map-intro p{color:#465347}
+   .kyn-live-map .leaflet-bottom.leaflet-right{bottom:auto;top:64px;right:12px}
+   .kyn-live-map .leaflet-control-attribution{margin:0;padding:4px 7px;border-radius:999px;font-size:9px;line-height:1.25;background:#FCFDF9E8;color:#465347;box-shadow:0 2px 8px #243b3014;backdrop-filter:blur(6px)}
+   .kyn-live-map .leaflet-control-attribution a{color:#294D37;font-weight:700}
    @keyframes kyn-pin-in{from{opacity:0;transform:translateY(7px) scale(.72)}to{opacity:1;transform:translateY(0) scale(1)}}
    @keyframes kyn-route-in{to{opacity:1}}
    @media(prefers-reduced-motion:reduce){.kyn-map-pin span{animation:none}.kyn-route-line{animation:none;opacity:1}.kyn-map-route a,.kyn-live-map .map-controls button{transition:none}}
@@ -128,7 +132,8 @@ export function NeighborhoodMap({origin,destination,service='walk'}:{origin:stri
     .kyn-live-map .map-controls{right:12px;bottom:18px}
     .kyn-live-map .map-controls button{width:44px;height:44px}
     .kyn-live-map .kyn-map-status{top:58px}
-    .kyn-live-map .leaflet-control-attribution{font-size:9px;margin-bottom:12px}
+    .kyn-live-map .leaflet-bottom.leaflet-right{top:53px;right:8px}
+    .kyn-live-map .leaflet-control-attribution{font-size:9px}
    }
   `}</style>
  </section>;
