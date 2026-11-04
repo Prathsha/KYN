@@ -1,0 +1,6 @@
+import {NextRequest} from 'next/server';
+import {z} from 'zod';
+import {client,body,json,fail,dbError,ApiError} from '@/lib/server';
+async function operator(req:NextRequest){const c=await client(req);const p=await c.db.from('profiles').select('role').eq('id',c.user.id).single();if(p.data?.role!=='ops')throw new ApiError('Not authorized',403);return c}
+export async function GET(req:NextRequest){try{const {db}=await operator(req);const expired=await db.rpc('expire_requests');if(expired.error)dbError(expired.error);const results=await Promise.all(['reports','bookings','account_requests','operations_audit'].map(t=>db.from(t).select('*').order('created_at',{ascending:false}).limit(100)));for(const result of results)if(result.error)dbError(result.error);return json({reports:results[0].data,bookings:results[1].data,requests:results[2].data,audit:results[3].data})}catch(e){return fail(e)}}
+export async function POST(req:NextRequest){try{const {db}=await operator(req);const i=z.object({id:z.uuid(),action:z.enum(['acknowledged','escalated','resolved','complete_stalled','cancel_stalled','suspend']),note:z.string().trim().min(10).max(1000)}).parse(await body(req));const result=await db.rpc('ops_resolve',{p_id:i.id,p_action:i.action,p_note:i.note});if(result.error)dbError(result.error);return json({saved:true})}catch(e){return fail(e)}}

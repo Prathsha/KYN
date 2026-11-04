@@ -1,4 +1,5 @@
 'use client';
+import {serviceAreas,defaultServiceArea} from '@/shared/service-areas';
 
 import {useEffect,useState,type FormEvent} from 'react';
 import {supabase,api} from '@/lib/supabase';
@@ -105,7 +106,7 @@ export function CompanionWizard({profile,initial,onComplete,demo=false}:Companio
  const [phase,setPhase]=useState<CompanionPhase>(2);
  const [draft,setDraft]=useState<Draft>({
   name:initial?.full_name||profile.full_name,
-  area:initial?.service_area||'All service areas',
+  area:initial?.service_area||defaultServiceArea,
   availability:initial?.availability||'',
   experience:initial?.experience||'',
  });
@@ -170,7 +171,7 @@ export function CompanionWizard({profile,initial,onComplete,demo=false}:Companio
     <label className="field">Full name<input required maxLength={80} autoComplete="name" value={draft.name} onChange={event=>setDraft({...draft,name:event.target.value})}/></label>
     <label className="checkbox"><input type="checkbox" required checked={adult} onChange={event=>setAdult(event.target.checked)}/>I confirm I am 18 or older.</label>
    </>:phase===3?<>
-    <label className="field">Your service area<select value={draft.area} onChange={event=>setDraft({...draft,area:event.target.value})}>{['All service areas','East Village','NYU / Greenwich Village','Union Square'].map(area=><option key={area}>{area}</option>)}</select></label>
+    <label className="field">Your service area<select value={draft.area} onChange={event=>setDraft({...draft,area:event.target.value})}>{serviceAreas.map(area=><option key={area}>{area}</option>)}</select></label>
     <label className="field">When can you accompany people?<textarea required minLength={3} maxLength={500} placeholder="For example, Monday–Thursday, 6–9 pm" value={draft.availability} onChange={event=>setDraft({...draft,availability:event.target.value})}/></label>
    </>:phase===4?
     <label className="field">Tell us about your local knowledge and experience<textarea required minLength={20} maxLength={2000} rows={6} placeholder="Which neighborhoods and subway routes do you know? What experience do you have helping people?" value={draft.experience} onChange={event=>setDraft({...draft,experience:event.target.value})}/><small>At least 20 characters. Please leave out identity documents and sensitive personal details.</small></label>

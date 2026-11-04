@@ -9,3 +9,7 @@ build/
 *.tsbuildinfo
 .vercel/
 .DS_Store
+
+supabase/.temp/
+test-results/
+playwright-report/

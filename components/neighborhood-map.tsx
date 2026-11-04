@@ -52,7 +52,7 @@ export function NeighborhoodMap({origin,destination,service='walk'}:{origin:stri
   if(unique.length>1){
    const routePoints=unique.map(p=>[p.lat,p.lng] as [number,number]);
     L.polyline(routePoints,{className:'kyn-route-casing',color:'#FFF8ED',weight:13,opacity:.98,lineCap:'round'}).addTo(markers);
-    L.polyline(routePoints,{className:'kyn-route-line',color:'#174D2D',weight:7,opacity:1,lineCap:'round'}).addTo(markers);
+    L.polyline(routePoints,{className:'kyn-route-line',color:'#174D2D',weight:3,opacity:.7,lineCap:'round',dashArray:'6 10'}).addTo(markers);
   }
   for(const p of unique){
    const label=`${p.id===a?.id?'Meeting point':'Destination'}: ${p.name}`;
@@ -79,10 +79,10 @@ export function NeighborhoodMap({origin,destination,service='walk'}:{origin:stri
 
  return <section className="map kyn-live-map" aria-label="Interactive neighborhood map">
   <div ref={container} className="map-art kyn-map-canvas" aria-label="Street map of public meeting points"/>
-  <div className="map-header"><span><MapPin size={14}/> New York City</span><span className="map-area">Sample journey</span></div>
+  <div className="map-header"><span><MapPin size={14}/> New York City</span><span className="map-area">Meeting points · not navigation</span></div>
   {!ready&&!failed&&<div className="kyn-map-status" role="status">Loading street map…</div>}
   {(failed||tileError)&&<div className="kyn-map-status" role="alert">Street map unavailable. Check your connection. <button onClick={()=>setAttempt(v=>v+1)}>Retry map</button></div>}
-  {q?<div className="route-estimate kyn-map-route"><div><strong>{q.minutes} min</strong><span>{q.miles} mi · Planning estimate</span></div>{directions&&<a href={directions} target="_blank" rel="noopener noreferrer">{service==='subway'?'Transit directions':'Walking directions'} <ExternalLink size={12}/></a>}</div>:<div className="map-intro"><Leaf size={23}/><span className="eyebrow">A LITTLE COMPANY GOES A LONG WAY</span><h2>Your neighborhood.<br/>A little more familiar.</h2><p>A walk home. A new subway route.<br/>A person to share the way.</p></div>}
+  {q?<div className="route-estimate kyn-map-route"><div><strong>{q.minutes} min</strong><span>{q.miles} mi · Approximate, not routed</span></div>{directions&&<a href={directions} target="_blank" rel="noopener noreferrer">{service==='subway'?'Transit directions':'Walking directions'} <ExternalLink size={12}/></a>}</div>:<div className="map-intro"><Leaf size={23}/><span className="eyebrow">A LITTLE COMPANY GOES A LONG WAY</span><h2>Your neighborhood.<br/>A little more familiar.</h2><p>A walk home. A new subway route.<br/>A person to share the way.</p></div>}
   <div className="map-controls"><button aria-label="Zoom in" disabled={!ready} onClick={()=>instance.current?.map.zoomIn()}><Plus size={16}/></button><button aria-label="Zoom out" disabled={!ready} onClick={()=>instance.current?.map.zoomOut()}><Minus size={16}/></button><button aria-label="Recenter map" disabled={!ready} onClick={()=>recenter.current()}><LocateFixed size={16}/></button></div>
   <style jsx global>{`
    .kyn-live-map{isolation:isolate;background:#DDE6D8}
@@ -98,8 +98,8 @@ export function NeighborhoodMap({origin,destination,service='walk'}:{origin:stri
    .kyn-live-map .map-header .map-area{background:#EFF3EAE8;color:#465347;font-weight:600}
    .kyn-live-map .kyn-map-route{top:auto;left:24px;bottom:28px;max-width:calc(100% - 92px);display:flex;align-items:center;gap:20px;padding:14px 16px;border:1px solid #D9E1D4;box-shadow:0 9px 28px #243b3024;background:#FCFDF9F2;backdrop-filter:blur(12px)}
    .kyn-live-map .kyn-map-route strong{font-size:20px;letter-spacing:-.6px;margin:0 0 3px}
-   .kyn-live-map .kyn-map-route span{display:block;font-size:10px;color:#465347;white-space:nowrap}
-   .kyn-map-route a{display:flex;align-items:center;gap:7px;min-height:40px;margin:0;padding:9px 11px;border-radius:999px;background:#243B30;color:white;font-size:10px;font-weight:700;text-decoration:none;white-space:nowrap;transition:background-color .22s ease-out,transform .22s ease-out}
+   .kyn-live-map .kyn-map-route span{display:block;font-size:14px;color:#465347;white-space:nowrap}
+   .kyn-map-route a{display:flex;align-items:center;gap:7px;min-height:40px;margin:0;padding:9px 11px;border-radius:999px;background:#243B30;color:white;font-size:14px;font-weight:700;text-decoration:none;white-space:nowrap;transition:background-color .22s ease-out,transform .22s ease-out}
    .kyn-map-route a:hover{background:#3A5743}
    .kyn-map-route a:active{transform:scale(.97)}
    .kyn-map-pin{border:0;background:transparent;display:grid;place-items:center;filter:none}
@@ -126,8 +126,8 @@ export function NeighborhoodMap({origin,destination,service='walk'}:{origin:stri
     .kyn-live-map .map-header>span{padding:8px 9px}
     .kyn-live-map .kyn-map-route{left:12px;bottom:18px;gap:10px;padding:11px 12px;max-width:calc(100% - 64px)}
     .kyn-live-map .kyn-map-route strong{font-size:17px}
-    .kyn-live-map .kyn-map-route span{font-size:8px}
-    .kyn-map-route a{width:44px;height:44px;padding:0;font-size:0;gap:0}
+    .kyn-live-map .kyn-map-route span{font-size:14px}
+    .kyn-map-route a{min-height:44px;padding:8px;font-size:13px;white-space:normal}
     .kyn-map-route a svg{width:14px;height:14px}
     .kyn-live-map .map-controls{right:12px;bottom:18px}
     .kyn-live-map .map-controls button{width:44px;height:44px}
