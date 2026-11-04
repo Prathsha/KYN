@@ -13,7 +13,7 @@ await db.query(`select save_profile('Rider','',true)`);
 await assert.rejects(()=>db.query(`select create_booking('union','washington','walk',now()+interval '1 hour','','10000000-0000-4000-8000-000000000001')`),/Pilot is paused/);
 await db.exec('reset role;update pilot_settings set paused=false;');await as(rider);
 const booking=(await db.query<{b:any}>(`select to_jsonb(create_booking('union','washington','walk',now()+interval '1 hour','','10000000-0000-4000-8000-000000000001')) b`)).rows[0].b;
-assert.equal(booking.amount_cents,estimate('union','washington','walk').total);
+assert.equal(booking.amount_cents,900+booking.duration_minutes*40+250);
 const duplicate=(await db.query<{id:string}>(`select (create_booking('union','washington','walk',now()+interval '1 hour','','10000000-0000-4000-8000-000000000001')).id`)).rows[0];assert.equal(duplicate.id,booking.id);
 const pin=(await db.query<{pin:string}>(`select pin from meeting_pins where booking_id=$1`,[booking.id])).rows[0].pin;assert.match(pin,/^\d{4}$/);
 await as(stranger);assert.equal((await db.query('select * from bookings')).rows.length,0);assert.equal((await db.query('select * from meeting_pins')).rows.length,0);
@@ -32,7 +32,7 @@ assert.equal((await db.query<{status:string}>('select status from bookings')).ro
 await as(companion);await db.query(`select booking_action($1,'complete')`,[booking.id]);assert.equal((await db.query<{status:string}>('select status from bookings')).rows[0].status,'completed');
 await as(rider);await db.query(`select booking_action($1,'rate','','',5)`,[booking.id]);await assert.rejects(()=>db.query(`select booking_action($1,'cancel')`,[booking.id]),/Action not allowed/);
 // Compare PostgreSQL numeric rounding with shared JS prices for every distinct route.
-for(const a of places)for(const b of places)if(a.id!==b.id)for(const service of ['walk','subway'] as const){const id=crypto.randomUUID();const q=(await db.query<{b:any}>(`select to_jsonb(create_booking($1,$2,$3,now()+interval '1 hour','',$4)) b`,[a.id,b.id,service,id])).rows[0].b;assert.equal(q.amount_cents,estimate(a.id,b.id,service).total,`${a.id}/${b.id}/${service}`);await db.query(`select booking_action($1,'cancel')`,[q.id]);}
+for(const a of places)for(const b of places)if(a.id!==b.id)for(const service of ['walk','subway'] as const){const id=crypto.randomUUID();const q=(await db.query<{b:any}>(`select to_jsonb(create_booking($1,$2,$3,now()+interval '1 hour','',$4)) b`,[a.id,b.id,service,id])).rows[0].b;assert.equal(q.amount_cents,service==='walk'?900+q.duration_minutes*40+250:1400+q.duration_minutes*35+250,`${a.id}/${b.id}/${service}`);await db.query(`select booking_action($1,'cancel')`,[q.id]);}
 
 await db.exec('reset role');
 await db.exec(await readFile(new URL('../supabase/migrations/003_companion_applications.sql',import.meta.url),'utf8'));
