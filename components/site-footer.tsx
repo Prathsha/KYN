@@ -6,6 +6,6 @@ export function SiteFooter(){
    <a href="/?page=activity">My journeys</a>
    <a href="/?page=about">About KYN</a><a href="/support">Support & data</a><a href="/privacy">Privacy</a><a href="/terms">Preview terms</a><a href="/demo">Simulated demo</a>
   </nav>
-  
+
  </footer>;
 }
