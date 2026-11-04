@@ -1,0 +1,22 @@
+begin;
+create or replace function public.create_booking(p_origin text,p_destination text,p_service text,p_scheduled_at timestamptz,p_notes text,p_request_id uuid) returns public.bookings language plpgsql security definer set search_path=public as $$declare result public.bookings;a public.places;b public.places;dist numeric;mins int;fare int;begin
+if auth.uid() is null then raise exception 'Not authorized';end if;
+perform public.expire_requests();
+perform 1 from public.profiles where id=auth.uid() for update;
+select * into result from public.bookings where rider_id=auth.uid() and request_id=p_request_id;if found then return result;end if;
+if not exists(select 1 from public.profiles where id=auth.uid() and adult_confirmed) then raise exception 'Age confirmation required';end if;
+if exists(select 1 from profiles where id=auth.uid() and suspended) then raise exception 'Account blocked: contact support';end if;
+if (select paused from public.pilot_settings where id=1) then raise exception 'Pilot is paused';end if;
+if exists(select 1 from public.bookings where rider_id=auth.uid() and status not in ('completed','cancelled','reported','expired','ended_early','no_show')) then raise exception 'Already have an open journey';end if;
+select * into a from public.places where id=p_origin;select * into b from public.places where id=p_destination;
+if a.id is null or b.id is null or a.id=b.id then raise exception 'Invalid route';end if;
+if p_service not in ('walk','subway') then raise exception 'Invalid service';end if;
+if p_scheduled_at<now() or p_scheduled_at>now()+interval '30 days' then raise exception 'Departure must be in the future and within 30 days';end if;
+if public.service_capacity(p_origin)=0 then raise exception 'Companion unavailable: no online companion can fulfill this request. Try again later.';end if;
+if length(p_notes)>500 or p_request_id is null then raise exception 'Invalid request';end if;
+dist=round(sqrt(power(a.x-b.x,2)+power(a.y-b.y,2))::numeric/490,1);mins=greatest(7,round(dist*25)::int);
+if p_service='subway' then mins=greatest(14,mins-3);fare=500+mins*15+150;else fare=400+mins*20+150;end if;
+insert into public.bookings(rider_id,origin,destination,service,scheduled_at,amount_cents,duration_minutes,notes,request_id,expires_at) values(auth.uid(),p_origin,p_destination,p_service,p_scheduled_at,fare,mins,p_notes,p_request_id,least(p_scheduled_at,now()+interval '15 minutes')) returning * into result;
+insert into public.meeting_pins(booking_id,pin) values(result.id,lpad((('x'||encode(extensions.gen_random_bytes(2),'hex'))::bit(16)::int%10000)::text,4,'0'));
+insert into public.booking_events(booking_id,actor_id,kind) values(result.id,auth.uid(),'requested');return result;end$$;
+commit;

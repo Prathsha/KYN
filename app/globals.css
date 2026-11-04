@@ -29,3 +29,5 @@ html{background:var(--paper);scroll-behavior:smooth}body{font-size:16px;line-hei
 .site-footer nav{flex-wrap:wrap}
 .site-footer nav a{min-height:44px;display:inline-flex;align-items:center}
 @media(max-width:760px){.header-right .location{display:none}.header .brand{font-size:26px}.demo-mode{max-width:100px;white-space:normal;line-height:1.3}.header-right{gap:4px}.header-right>.text-button{font-size:12px}.kyn-live-map .kyn-map-route{flex-wrap:wrap;max-width:calc(100% - 76px)}.field input,.field select,.field textarea{font-size:16px;min-height:48px}.content-page{padding-bottom:calc(90px + env(safe-area-inset-bottom))}}
+
+.route-inline-summary{display:flex;align-items:center;gap:10px;margin:6px 0 15px;padding:12px 14px;border-radius:10px;background:#EDF1E8;color:#465347;font-size:13px}.route-inline-summary strong{margin-left:auto;color:var(--ink)}@media(max-width:760px){.kyn-live-map .kyn-map-route{display:none!important}}
